@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Портфолио{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+<header>
+    <nav>
+        <ul class="nav-list">
+            <li class="{% if request.resolver_match.url_name == 'portfolio_app:home' %}active{% endif %}">
+                <a href="{% url 'portfolio_app:home' %}">Главная</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'portfolio_app:projects' %}active{% endif %}">
+                <a href="{% url 'portfolio_app:projects' %}">Проекты</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'portfolio_app:articles' %}active{% endif %}">
+                <a href="{% url 'portfolio_app:articles' %}">Статьи</a>
+            </li>
+            <li class="{% if request.resolver_match.url_name == 'portfolio_app:contact' %}active{% endif %}">
+                <a href="{% url 'portfolio_app:contact' %}">Контакты</a>
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <!-- Блок для отображения изображений -->
+    {% block media %}
+    {% if image|default:'' %}
+    <div class="media-container">
+        <img src="{{ image.url }}" alt="Медиафайл" class="media-image">
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    <!-- Основной контент страницы -->
+    {% block content %}
+    <p>Содержимое будет здесь.</p>
+    {% endblock %}
+</main>
+
+<footer>
+    <p>&copy; Мое портфолио </p>
+</footer>
+</body>
+</html>

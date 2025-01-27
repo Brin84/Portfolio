@@ -1,0 +1,166 @@
+/* Шапка */
+header {
+    background-color: #000; /* Чёрный фон */
+    padding: 10px 0; /* Отступы сверху и снизу */
+}
+
+header nav {
+    display: flex;
+    justify-content: center; /* Центрируем элементы меню по горизонтали */
+    align-items: center;
+}
+
+header .nav-list {
+    list-style: none; /* Убираем маркеры списка */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Делаем список горизонтальным */
+    gap: 20px; /* Расстояние между элементами */
+}
+
+header .nav-list li {
+    margin: 0;
+    padding: 0;
+}
+
+header .nav-list a {
+    text-decoration: none; /* Убираем подчёркивание */
+    color: white; /* Белый текст */
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s ease; /* Анимация при наведении */
+}
+
+/* Стиль для активной ссылки */
+header .nav-list .active a {
+    color: #007bff; /* Синий цвет для активной ссылки */
+    font-weight: bold; /* Дополнительное выделение */
+}
+
+header .nav-list a:hover {
+    color: #007bff; /* Синий цвет при наведении */
+}
+
+/* Основное содержимое страницы */
+main {
+    min-height: calc(100vh - 100px); /* Учитываем высоту шапки и футера */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Центрируем содержимое по вертикали */
+    align-items: center; /* Центрируем содержимое по горизонтали */
+}
+
+/* Стили для формы */
+form {
+    width: 100%;
+    max-width: 500px; /* Ограничиваем ширину формы */
+    margin: 20px auto; /* Центрируем форму и добавляем отступ сверху */
+    padding: 20px;
+    background-color: #f9f9f9; /* Лёгкий фон для формы */
+    border: 1px solid #ddd; /* Тонкая рамка вокруг формы */
+    border-radius: 8px; /* Скругляем углы */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Лёгкая тень */
+}
+
+/* Стили для полей ввода */
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+form input,
+form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box; /* Учитываем отступы и рамки */
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+/* Футер */
+footer {
+    background-color: #000; /* Чёрный фон */
+    color: #fff; /* Белый текст */
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto; /* Перемещает футер вниз страницы */
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Общий контейнер для контента */
+.projects-container, .articles-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center; /* Центрируем элементы */
+    padding: 20px;
+}
+
+.project-item, .article-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 300px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-item:hover, .article-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.project-item h2, .article-item h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.project-item p, .article-item p {
+    font-size: 16px;
+    color: #555;
+}
+
+.project-item a, .article-item a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.project-item a:hover, .article-item a:hover {
+    color: #0056b3;
+}
+
+/* Заголовок страницы */
+.page-title {
+    text-align: center;
+    font-size: 32px;
+    margin: 20px 0;
+    color: #333;
+}

@@ -1,0 +1,31 @@
+{% extends 'portfolio_app/base.html' %}
+
+{% block title %}Статьи{% endblock %}
+
+{% block content %}
+<div class="articles-page">
+    <h1 class="page-title">Мои статьи</h1>
+
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="articles-container">
+        {% for article in articles %}
+        <div class="article-item">
+            <h2 class="article-title">{{ article.title }}</h2>
+            <p class="article-excerpt">{{ article.content|truncatewords:30 }}</p>
+            <a href="{% url 'portfolio_app:article_detail' article.id %}" class="button-read-more">Читать далее</a>
+        </div>
+        {% empty %}
+        <p class="no-articles">На данный момент статей нет.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
