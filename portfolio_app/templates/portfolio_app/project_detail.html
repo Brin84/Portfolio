@@ -1,0 +1,31 @@
+{% extends 'portfolio_app/base.html' %}
+
+{% block title %}{{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="project-detail">
+    <h1 class="page-title">{{ project.title }}</h1>
+
+    <div class="project-content">
+        {% if project.image %}
+        <div class="project-image">
+            <img src="{{ project.image.url }}" alt="{{ project.title }}"
+                 style="width: 100%; max-width: 600px; height: auto; border-radius: 8px;">
+        </div>
+        {% endif %}
+
+        <div class="project-description">
+            <p>{{ project.description }}</p>
+            {% if project.link %}
+            <p>
+                <a href="{{ project.link }}" target="_blank" class="button-link">Перейти по ссылке</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="project-back">
+        <a href="{% url 'portfolio_app:projects' %}" class="button-back">Назад к списку проектов</a>
+    </div>
+</div>
+{% endblock %}

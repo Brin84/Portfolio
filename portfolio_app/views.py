@@ -1,9 +1,8 @@
-from msilib.schema import ListView
-
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.generic import TemplateView, View, ListView
-from .models import Project
+from django.views.generic import TemplateView, View, ListView, DetailView
+from .models import Project, Article
+
 
 class HomeView(TemplateView):
     template_name = 'portfolio_app/home.html'
@@ -19,10 +18,16 @@ class ProjectListView(ListView):
     #     return HttpResponse("Это страница проектов")
 
 
-class ArticleListView(ListView):
+class ProjectDetailView(DetailView):
     model = Project
+    template_name = 'portfolio_app/project_detail.html'
+    context_object_name = 'project'
+
+
+class ArticleListView(ListView):
+    model = Article
     template_name = 'portfolio_app/articles.html'
-    context_object_name = "articles"
+    context_object_name = 'articles'
 
 
 class ContactView(View):
@@ -37,3 +42,5 @@ class ContactView(View):
 
         context = {'success': True}
         return render(request, 'portfolio_app/contact.html', context)
+
+
