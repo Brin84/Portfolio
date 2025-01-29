@@ -1,0 +1,23 @@
+{% extends 'portfolio_app/base.html' %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block content %}
+<div class="article-detail-page">
+    <h1 class="article-title">{{ article.title }}</h1>
+
+    {% if article.image %}
+    <div class="article-image-container">
+        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="article-image">
+    </div>
+    {% endif %}
+
+    <div class="article-content">
+        <p>{{ article.content }}</p>
+    </div>
+
+    <div class="back-link-container">
+        <a href="{% url 'portfolio_app:articles' %}" class="button-back">Назад к списку статей</a>
+    </div>
+</div>
+{% endblock %}
