@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.views.generic import TemplateView, View, ListView, DetailView
 from django.contrib import messages
 
-from .models import Project, Article
+from .models import Project, Article, ContactMessage
 
 
 class HomeView(TemplateView):
@@ -65,8 +65,11 @@ class ContactView(View):
         email = request.POST.get('email')
         message = request.POST.get('message')
 
+        ContactMessage.objects.create(name=name, email=email, message=message)
+
         context = {'success': True}
         return render(request, 'portfolio_app/contact.html', context)
+
 
 class Custom404View(View):
     def get(self, request, *args, **kwargs):
