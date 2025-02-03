@@ -1,9 +1,9 @@
-# from django.contrib.messages.context_processors import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.views.generic import TemplateView, View, ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import TemplateView, View, ListView, DetailView, CreateView
 from django.contrib import messages
-
+from .forms import ProjectForm, ArticleForm
 from .models import Project, Article, ContactMessage
 
 
@@ -74,3 +74,41 @@ class ContactView(View):
 class Custom404View(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'portfolio_app/404.html', status=404)
+
+
+class ProjectCreateView(CreateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = 'portfolio_app/add_project.html'
+    # login_url = 'portfolio_app/projects.html'
+    success_url = reverse_lazy('portfolio_app/projects')
+
+    def get_success_url(self):
+        return reverse_lazy('portfolio_app:projects')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Проект добавлен")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Ошибка, проект не добавлен')
+        return super().form_invalid(form)
+
+
+class ArticleCreateView(CreateView):
+    model = Article
+    form_class = ArticleForm
+    template_name = 'portfolio_app/add_article.html'
+    # login_url = 'portfolio_app/articles.html'
+    success_url = reverse_lazy('portfolio_app:articles')
+
+    def get_success_url(self):
+        return reverse_lazy('portfolio_app:articles')
+
+    def form_valid(self, form):
+        messages.success(self.request, "Статья добавлена")
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Ошибка, статья не добавлена')
+        return super().form_invalid(form)

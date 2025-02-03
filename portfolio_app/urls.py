@@ -11,5 +11,7 @@ urlpatterns = [
     path("articles/", views.ArticleListView.as_view(), name="articles"),
     path("articles/<int:pk>/", views.ArticleDetailView.as_view(), name="article_detail"),
     path("contact/", views.ContactView.as_view(), name="contact"),
-    path('404/', views.Custom404View.as_view(), name='custom_404')
+    path('404/', views.Custom404View.as_view(), name='custom_404'),
+    path('add_project/', views.ProjectCreateView.as_view(), name='add_project'),
+    path('add_article/', views.ArticleCreateView.as_view(), name='add_article')
 ]

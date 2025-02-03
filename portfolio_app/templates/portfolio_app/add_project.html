@@ -1,0 +1,12 @@
+{% extends 'portfolio_app/base.html' %}
+
+{% block title %}Добавить проект{% endblock %}
+
+{% block content %}
+<h1>Добавить новый проект</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Добавить проект</button>
+</form>
+{% endblock %}
