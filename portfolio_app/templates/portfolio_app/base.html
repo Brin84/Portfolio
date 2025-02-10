@@ -23,6 +23,16 @@
             <li class="{% if request.resolver_match.url_name == 'portfolio_app:contact' %}active{% endif %}">
                 <a href="{% url 'portfolio_app:contact' %}">Контакты</a>
             </li>
+            {% if user.is_authenticated %}
+            <li>
+                <a href="#" onclick="document.getElementById('logout-form').submit(); return false;">Выйти</a>
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </li>
+            {% else %}
+            <li><a href="{% url 'login' %}">Войти</a></li>
+            {% endif %}
         </ul>
     </nav>
 </header>
