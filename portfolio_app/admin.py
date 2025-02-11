@@ -14,7 +14,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_at')
+    list_display = ('title', 'image', 'created_at')
     search_fields = ('title', 'content')
     list_filter = ('created_at',)
     ordering = ('-created_at',)

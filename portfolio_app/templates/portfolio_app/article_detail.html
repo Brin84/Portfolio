@@ -8,7 +8,8 @@
 
     {% if article.image %}
     <div class="article-image-container">
-        <img src="{{ article.image.url }}" alt="{{ article.title }}" class="article-image">
+        <img src="{{ article.image.url }}" alt="{{ article.title }}"
+             style="max-width: 100%; height: auto;">
     </div>
     {% endif %}
 

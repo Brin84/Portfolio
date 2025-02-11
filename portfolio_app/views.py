@@ -37,7 +37,7 @@ class ArticleListView(ListView):
     model = Article
     template_name = 'portfolio_app/articles.html'
     context_object_name = 'articles'
-
+    paginate_by = 3
 
 class ArticleDetailView(DetailView):
     model = Article
