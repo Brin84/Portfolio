@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'portfolio_app.middleware.LoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'portfolio.urls'
@@ -125,3 +126,40 @@ LOGOUT_REDIRECT_URL = '/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {  # Консольный вывод
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {  # Запись логов в файл
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/project.log',  # Файл для записи логов
+            'maxBytes': 1024 * 1024 * 5,  # Максимальный размер файла: 5 MB
+            'backupCount': 0,  # Не хранить резервные копии
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'project_logger': {  # Название логгера, используемого в middleware
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
