@@ -29,3 +29,8 @@ class ContactForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите имя'}),
         'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),}
+
+
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=250, required=False, label='Поиск',
+                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Поиск'}))
