@@ -3,22 +3,73 @@
 {% block title %}Проекты{% endblock %}
 
 {% block content %}
-<h1 class="page-title">Мои проекты</h1>
-<div class="projects-container">
-    {% for project in projects %}
-    <div class="project-item">
-        {% if project.image %}
-        <div class="project-image">
-            <img src="{{ project.image.url }}" alt="{{ project.title }}"
-                 style="width: 100%; height: auto; border-radius: 8px;">
+<div class="projects-page">
+    <h1 class="page-title">Мои проекты</h1>
+
+    <!-- Сообщения -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
         </div>
-        {% endif %}
-        <h2>{{ project.title }}</h2>
-        <p>{{ project.description }}</p>
-        <a href="{% url 'portfolio_app:project_detail' project.id %}">Подробнее</a>
+        {% endfor %}
     </div>
-    {% empty %}
-    <p>На данный момент у вас нет проектов!</p>
-    {% endfor %}
+    {% endif %}
+
+    <!-- Форма поиска -->
+    <div class="search-container">
+        <form method="get" action="{% url 'portfolio_app:projects' %}">
+            <input
+                    type="text"
+                    name="query"
+                    placeholder="Введите запрос для поиска..."
+                    value="{{ request.GET.query|default:'' }}"
+                    class="search-input"
+            >
+            <button type="submit" class="button-search">Поиск</button>
+        </form>
+    </div>
+
+    <!-- Результаты поиска -->
+    {% if request.GET.query %}
+    <p class="search-results">Результаты поиска по запросу: <strong>{{ request.GET.query }}</strong></p>
+    {% endif %}
+
+    <!-- Список проектов -->
+    <div class="projects-container">
+        {% for project in projects %}
+        <div class="project-item">
+            {% if project.image %}
+            <div class="project-image">
+                <img src="{{ project.image.url }}" alt="{{ project.title }}"
+                     style="width: 100%; height: auto; border-radius: 8px;">
+            </div>
+            {% endif %}
+            <h2 class="project-title">{{ project.title }}</h2>
+            <p class="project-description">{{ project.description|truncatewords:30 }}</p>
+            <a href="{% url 'portfolio_app:project_detail' project.id %}" class="button-read-more">Подробнее</a>
+        </div>
+        {% empty %}
+        <p class="no-projects">Проекты не найдены.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?query={{ request.GET.query|default:'' }}&page=1">&laquo; первая</a>
+                <a href="?query={{ request.GET.query|default:'' }}&page={{ page_obj.previous_page_number }}">предыдущая</a>
+            {% endif %}
+            <span class="current">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?query={{ request.GET.query|default:'' }}&page={{ page_obj.next_page_number }}">следующая</a>
+                <a href="?query={{ request.GET.query|default:'' }}&page={{ page_obj.paginator.num_pages }}">последняя &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
 </div>
 {% endblock %}
