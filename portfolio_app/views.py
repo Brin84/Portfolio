@@ -35,22 +35,20 @@ class ProjectListView(ListView):  # Определяем класс предст
         return context  # Возвращаем обновлённый контекст
 
 
-class ProjectDetailView(DetailView):  # Определяем класс представления, наследуя от DetailView
-    model = Project  # Указываем модель, экземпляр которой будет отображаться
-    template_name = 'portfolio_app/project_detail.html'  # Указываем шаблон для отображения деталей объекта
-    context_object_name = 'project'  # Имя контекста, под которым объект будет передан в шаблон
+class ProjectDetailView(DetailView):
+    model = Project
+    template_name = 'portfolio_app/project_detail.html'
+    context_object_name = 'project'
 
-    def get_object(self):  # Переопределяем метод получения объекта
-        project_id = self.kwargs.get('pk')  # Извлекаем параметр 'pk' из URL, который идентифицирует объект
-        print(
-            f"Запрос статьи с ID: {project_id}")  # Выводим в консоль идентификатор запрашиваемого проекта (для отладки)
+    def get_object(self):
+        project_id = self.kwargs.get('pk')
+        print(f"Запрос статьи с ID: {project_id}")
 
         try:
-            return super().get_object()  # Пытаемся получить объект, используя метод родительского класса
-        except Project.DoesNotExist:  # Обрабатываем случай, когда объект не найден
-            messages.info(self.request,
-                          "На данный момент проектов нет.")  # Добавляем информационное сообщение для пользователя
-            return redirect('portfolio_app:projects')  # Перенаправляем пользователя на страницу списка проектов
+            return super().get_object()
+        except Project.DoesNotExist:
+            messages.info(self.request, "На данный момент проектов нет.")
+            return redirect('portfolio_app:projects')
 
 
 class ArticleListView(ListView):  # Определяем класс представления, наследуя от ListView
