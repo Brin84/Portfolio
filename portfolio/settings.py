@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
-from django.conf.global_settings import LOGIN_URL, LOGOUT_REDIRECT_URL, LOGIN_REDIRECT_URL
+from django.conf.global_settings import LOGIN_URL, LOGOUT_REDIRECT_URL, LOGIN_REDIRECT_URL, EMAIL_BACKEND, EMAIL_HOST, \
+    EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-wqv0l!e7*719cbi1*^ci1fs(0tg0$s!z@v-0yn!3@p*sop!@s@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -163,3 +164,10 @@ LOGGING = {
         },
     },
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'brin14071984@gmail.com'
+EMAIL_HOST_PASSWORD = 'nhljcxphvdsnnxqc'
+CONTACT_EMAIL = 'ascomfort84@gmail.com'
