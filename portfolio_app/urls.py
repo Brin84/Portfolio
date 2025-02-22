@@ -1,6 +1,7 @@
 from django.urls import path  # Импортируем функцию path из django.urls для определения маршрутов URL.
 from . import \
     views  # Импортируем модуль views из текущей директории, чтобы использовать представления, определенные в нем.
+from .views import send_test_email
 
 app_name = "portfolio_app"  # Задаем пространство имен для приложения, чтобы различать URL-ы между разными приложениями.
 
@@ -18,6 +19,7 @@ urlpatterns = [  # Определяем список маршрутов URL дл
     path('404/', views.Custom404View.as_view(), name='custom_404'),  # Кастомная страница 404, вызывается Custom404View.
     path('add_project/', views.ProjectCreateView.as_view(), name='add_project'),
     # Страница для добавления нового проекта, вызывается ProjectCreateView.
-    path('add_article/', views.ArticleCreateView.as_view(), name='add_article')
+    path('add_article/', views.ArticleCreateView.as_view(), name='add_article'),
     # Страница для добавления новой статьи, вызывается ArticleCreateView.
+    path('send-email/', send_test_email, name='send_test_email'),
 ]

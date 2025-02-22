@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View, ListView, DetailView, CreateView
@@ -201,3 +201,11 @@ class ArticleCreateView(
                        'Ошибка, статья не добавлена')  # Добавляем сообщение об ошибке в систему сообщений.
         return super().form_invalid(
             form)  # Вызываем родительский метод form_invalid, чтобы обработать невалидную форму и вернуть пользователя к форме.
+
+def send_test_email(request):
+    send_mail(
+        'Бла-бла-бла, я пытаюсь работать.',
+        'brin14071984@gmail.com',
+        ['ascomfort84@gmail.com'],
+    )
+    return HttpResponse("письмо отправлено!")
