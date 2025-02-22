@@ -1,10 +1,14 @@
+import traceback
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
 from django.db.models import Q
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, View, ListView, DetailView, CreateView
 from django.contrib import messages
-from .forms import ProjectForm, ArticleForm, SearchForm
+from .forms import ProjectForm, ArticleForm, SearchForm, ContactForm
 from .models import Project, Article, ContactMessage
 
 
@@ -40,15 +44,21 @@ class ProjectDetailView(DetailView):
     template_name = 'portfolio_app/project_detail.html'
     context_object_name = 'project'
 
-    def get_object(self):
-        project_id = self.kwargs.get('pk')
-        print(f"Запрос статьи с ID: {project_id}")
-
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get('pk')
         try:
-            return super().get_object()
+            # Попытка получить объект
+            return Project.objects.get(pk=pk)
         except Project.DoesNotExist:
-            messages.info(self.request, "На данный момент проектов нет.")
+            raise Http404
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+        except Http404:
+            messages.info(request, 'Проекта с указанным ID не существует')
             return redirect('portfolio_app:projects')
+        return super().get(request, *args, **kwargs)
 
 
 class ArticleListView(ListView):  # Определяем класс представления, наследуя от ListView
@@ -93,10 +103,14 @@ class ArticleDetailView(DetailView):  # Определяем класс пред
 
 class ContactView(View):  # Определяем класс представления, наследуя от базового класса View
     def get(self, request):  # Метод, обрабатывающий GET-запросы
-        context = {'success': False}  # Создаем контекст с ключом 'success' и значением False
-        return render(request, 'portfolio_app/contact.html', context)  # Возвращаем страницу с формой и контекстом
+        form = ContactForm()
+        return render(request, 'portfolio_app/contact.html', {
+            'form': form,
+            'success': False
+        })  # Возвращаем страницу с формой и контекстом
 
     def post(self, request):  # Метод, обрабатывающий POST-запросы
+        form = ContactForm(request.POST)
         name = request.POST.get('name')  # Извлекаем значение 'name' из данных POST-запроса
         email = request.POST.get('email')  # Извлекаем значение 'email' из данных POST-запроса
         message = request.POST.get('message')  # Извлекаем значение 'message' из данных POST-запроса
@@ -105,7 +119,24 @@ class ContactView(View):  # Определяем класс представле
         ContactMessage.objects.create(name=name, email=email, message=message)
 
         context = {'success': True}  # Обновляем контекст, устанавливая 'success' в True
-        return render(request, 'portfolio_app/contact.html', context)  # Возвращаем страницу с обновленным контекстом
+        try:
+            send_mail(subject=f"Сообщение от {name}",
+                      message=message,
+                      from_email=settings.EMAIL_HOST_USER,
+                      recipient_list=[settings.CONTACT_EMAIL],
+                      fail_silently=False, )
+            return render(request, 'portfolio_app/contact.html', {
+                'form': None,
+                'success': True,
+            })
+        except Exception as e:
+            error_trace = traceback.format_exc()
+            print(error_trace)
+            # error_message = f"Ошибка при отправке сообщения: {str(e)}"
+        return render(request, 'portfolio_app/contact.html', {
+            'form': form,
+            'success': False
+        })  # Возвращаем страницу с обновленным контекстом
 
 
 class Custom404View(View):  # Определяем класс представления, наследуя от базового класса View
@@ -168,3 +199,19 @@ class ArticleCreateView(
                        'Ошибка, статья не добавлена')  # Добавляем сообщение об ошибке в систему сообщений.
         return super().form_invalid(
             form)  # Вызываем родительский метод form_invalid, чтобы обработать невалидную форму и вернуть пользователя к форме.
+
+
+def send_test_email(request):
+    print("Функция send_test_email вызвана!")
+    try:
+        send_mail(
+            'Бла-бла-бла, я пытаюсь работать.',
+            'Тест сообщение',
+            'brin14071984@gmail.com',
+            ['ascomfort84@gmail.com'],
+            fail_silently=False
+        )
+        return HttpResponse("Письмо отправлено!")
+    except Exception as e:
+        print(f'Ошибка при отправке{e}')
+        return HttpResponse(f'Ошибка: {e}', status=500)
