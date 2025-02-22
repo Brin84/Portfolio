@@ -21,5 +21,5 @@ urlpatterns = [  # Определяем список маршрутов URL дл
     # Страница для добавления нового проекта, вызывается ProjectCreateView.
     path('add_article/', views.ArticleCreateView.as_view(), name='add_article'),
     # Страница для добавления новой статьи, вызывается ArticleCreateView.
-    path('send-email/', send_test_email, name='send_test_email'),
+    path('send_email/', send_test_email, name='send_email'),
 ]

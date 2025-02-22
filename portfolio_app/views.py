@@ -1,5 +1,4 @@
 import traceback
-
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
@@ -62,7 +61,6 @@ class ProjectDetailView(DetailView):
         return super().get(request, *args, **kwargs)
 
 
-
 class ArticleListView(ListView):  # Определяем класс представления, наследуя от ListView
     model = Article  # Указываем модель, экземпляры которой будут отображаться в списке
     template_name = 'portfolio_app/articles.html'  # Указываем шаблон для отображения списка объектов
@@ -123,10 +121,10 @@ class ContactView(View):  # Определяем класс представле
         context = {'success': True}  # Обновляем контекст, устанавливая 'success' в True
         try:
             send_mail(subject=f"Сообщение от {name}",
-                    message=message,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[settings.CONTACT_EMAIL],
-                    fail_silently=False,)
+                      message=message,
+                      from_email=settings.EMAIL_HOST_USER,
+                      recipient_list=[settings.CONTACT_EMAIL],
+                      fail_silently=False, )
             return render(request, 'portfolio_app/contact.html', {
                 'form': None,
                 'success': True,
@@ -202,10 +200,18 @@ class ArticleCreateView(
         return super().form_invalid(
             form)  # Вызываем родительский метод form_invalid, чтобы обработать невалидную форму и вернуть пользователя к форме.
 
+
 def send_test_email(request):
-    send_mail(
-        'Бла-бла-бла, я пытаюсь работать.',
-        'brin14071984@gmail.com',
-        ['ascomfort84@gmail.com'],
-    )
-    return HttpResponse("письмо отправлено!")
+    print("Функция send_test_email вызвана!")
+    try:
+        send_mail(
+            'Бла-бла-бла, я пытаюсь работать.',
+            'Тест сообщение',
+            'brin14071984@gmail.com',
+            ['ascomfort84@gmail.com'],
+            fail_silently=False
+        )
+        return HttpResponse("Письмо отправлено!")
+    except Exception as e:
+        print(f'Ошибка при отправке{e}')
+        return HttpResponse(f'Ошибка: {e}', status=500)
