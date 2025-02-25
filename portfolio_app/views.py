@@ -1,4 +1,6 @@
 import traceback
+
+from Tools.scripts.findlinksto import visit
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
@@ -10,12 +12,16 @@ from django.views.generic import TemplateView, View, ListView, DetailView, Creat
 from django.contrib import messages
 from .forms import ProjectForm, ArticleForm, SearchForm, ContactForm
 from .models import Project, Article, ContactMessage
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 
 class HomeView(TemplateView):  # Определяем класс HomeView, наследуемый от TemplateView
     template_name = 'portfolio_app/home.html'  # Указываем путь к шаблону, который будет отображаться
 
 
+@method_decorator(cache_page(300), name='dispatch')
 class ProjectListView(ListView):  # Определяем класс представления, наследуя от ListView
     model = Project  # Указываем модель, с которой будет работать представление
     template_name = 'portfolio_app/projects.html'  # Указываем шаблон для отображения
@@ -40,24 +46,47 @@ class ProjectListView(ListView):  # Определяем класс предст
 
 
 class ProjectDetailView(DetailView):
+    # Указываем модель, с которой будет работать представление
     model = Project
+
+    # Путь к HTML-шаблону для отображения детальной информации о проекте
     template_name = 'portfolio_app/project_detail.html'
+
+    # Имя переменной контекста, которая будет использоваться в шаблоне
+    # Позволяет обращаться к объекту проекта как 'project' в шаблоне
     context_object_name = 'project'
 
     def get_object(self, queryset=None):
+        # Получаем первичный ключ (ID) проекта из URL
         pk = self.kwargs.get('pk')
+
         try:
-            # Попытка получить объект
+            # Пытаемся найти объект проекта по первичному ключу
+            # Метод .get() вызывает исключение, если объект не найден
             return Project.objects.get(pk=pk)
         except Project.DoesNotExist:
+            # Если проект не найден, вызываем исключение Http404
+            # Это приведет к отображению стандартной страницы 404
             raise Http404
 
     def get(self, request, *args, **kwargs):
         try:
+            # Пытаемся получить объект проекта
+            # Метод self.get_object() может вызвать Http404
             self.object = self.get_object()
+
+
         except Http404:
+            # Обработка случая, когда проект не найден
+
+            # Добавляем информационное сообщение для пользователя
             messages.info(request, 'Проекта с указанным ID не существует')
+
+            # Перенаправляем пользователя на страницу со списком проектов
             return redirect('portfolio_app:projects')
+
+        # Если проект найден, вызываем родительский метод get
+        # Это стандартная обработка для DetailView
         return super().get(request, *args, **kwargs)
 
 
@@ -118,25 +147,57 @@ class ContactView(View):  # Определяем класс представле
         # Создаем новый объект ContactMessage и сохраняем его в базе данных
         ContactMessage.objects.create(name=name, email=email, message=message)
 
-        context = {'success': True}  # Обновляем контекст, устанавливая 'success' в True
+        # словарь контекста с флагом успешной операции
+        context = {'success': True}
+
         try:
-            send_mail(subject=f"Сообщение от {name}",
-                      message=message,
-                      from_email=settings.EMAIL_HOST_USER,
-                      recipient_list=[settings.CONTACT_EMAIL],
-                      fail_silently=False, )
+            # Отправка электронной почты с помощью Django send_mail
+            send_mail(
+                # Тема письма - формируется с именем отправителя
+                subject=f"Сообщение от {name}",
+
+                # Текст сообщения, переданный в форме
+                message=message,
+
+                # Email отправителя из настроек проекта
+                from_email=settings.EMAIL_HOST_USER,
+
+                # Список получателей (берется из настроек)
+                recipient_list=[settings.CONTACT_EMAIL],
+
+                # Параметр для полной обработки ошибок
+                fail_silently=False,
+            )
+
+            # Рендер шаблона в случае успешной отправки
             return render(request, 'portfolio_app/contact.html', {
+                # Форма не передается (очищается)
                 'form': None,
+
+                # Флаг успешной отправки
                 'success': True,
             })
+
         except Exception as e:
+            # Обработка исключений при отправке письма
+
+            # Получение полного трейса ошибки
             error_trace = traceback.format_exc()
+
+            # Вывод трейса ошибки в консоль (для отладки)
             print(error_trace)
+
+            # Закомментированный код для создания текстового сообщения об ошибке
             # error_message = f"Ошибка при отправке сообщения: {str(e)}"
+
+        # Рендер шаблона в случае ошибки отправки
         return render(request, 'portfolio_app/contact.html', {
+            # Возврат исходной формы
             'form': form,
+
+            # Флаг неудачной отправки
             'success': False
-        })  # Возвращаем страницу с обновленным контекстом
+        })
 
 
 class Custom404View(View):  # Определяем класс представления, наследуя от базового класса View
@@ -146,12 +207,13 @@ class Custom404View(View):  # Определяем класс представл
         return render(request, 'portfolio_app/404.html', status=404)
 
 
-class ProjectCreateView(CreateView):  # Определяем класс представления, наследуя от базового класса CreateView
+class ProjectCreateView(LoginRequiredMixin,
+                        CreateView):  # Определяем класс представления, наследуя от базового класса CreateView
     model = Project  # Указываем модель, с которой будет работать представление
     form_class = ProjectForm  # Указываем форму, которая будет использоваться для создания объекта
     template_name = 'portfolio_app/add_project.html'  # Указываем имя шаблона, который будет использоваться для отображения формы
 
-    # login_url = 'portfolio_app/projects.html'  # Закомментированная строка,
+    login_url = '/login/'  # Закомментированная строка,
     # которая могла бы указывать URL для перенаправления неавторизованных пользователей
 
     success_url = reverse_lazy(
@@ -170,13 +232,13 @@ class ProjectCreateView(CreateView):  # Определяем класс пред
         return super().form_invalid(form)  # Вызываем родительский метод form_invalid, чтобы обработать невалидную форму
 
 
-class ArticleCreateView(
-    CreateView):  # Создаем класс ArticleCreateView, наследуя его от CreateView, чтобы реализовать функционал для создания объектов.
+class ArticleCreateView(LoginRequiredMixin,
+                        CreateView):  # Создаем класс ArticleCreateView, наследуя его от CreateView, чтобы реализовать функционал для создания объектов.
     model = Article  # Назначаем модель Article, которую будет использовать это представление для создания объектов.
     form_class = ArticleForm  # Указываем класс формы ArticleForm, которая будет использоваться для ввода данных для нового объекта.
     template_name = 'portfolio_app/add_article.html'  # Указываем путь к HTML-шаблону, который будет отображаться при открытии формы.
 
-    # login_url = 'portfolio_app/articles.html'  # Эта строка закомментирована. Она могла бы использоваться,
+    login_url = '/login/'  # Эта строка закомментирована. Она могла бы использоваться,
     # чтобы задать URL для перенаправления неавторизованных пользователей.
 
     success_url = reverse_lazy(
@@ -202,16 +264,46 @@ class ArticleCreateView(
 
 
 def send_test_email(request):
+    '''Тестовая функция '''
+    # Печать сообщения в консоль для отладки - показывает, что функция вызвана
     print("Функция send_test_email вызвана!")
+
     try:
+        # Отправка электронной почты с помощью встроенной функции Django
         send_mail(
+            # Тема письма
             'Бла-бла-бла, я пытаюсь работать.',
+
+            # Текст сообщения
             'Тест сообщение',
+
+            # Email отправителя (должен быть настроен в settings.py)
             'brin14071984@gmail.com',
+
+            # Список получателей (может содержать несколько email)
             ['ascomfort84@gmail.com'],
+
+            # Параметр, который отключает подавление исключений
+            # При False будет выброшено подробное исключение в случае ошибки
             fail_silently=False
         )
+
+        # Возвращаем HTTP-ответ об успешной отправке
         return HttpResponse("Письмо отправлено!")
+
     except Exception as e:
-        print(f'Ошибка при отправке{e}')
+        # Обработка любых исключений, которые могут возникнуть при отправке
+
+        # Печать ошибки в консоль для отладки
+        print(f'Ошибка при отправке: {e}')
+
+        # Возвращаем HTTP-ответ с текстом ошибки и статусом 500 (Internal Server Error)
         return HttpResponse(f'Ошибка: {e}', status=500)
+
+
+
+class SessionTestView(View):
+    def get(self, request):
+        visits = request.session.get('visits', 0)
+        request.session['visits'] = visits+1
+        return HttpResponse(f'Вы посетили эту страницу {visits+1} раз(а)')

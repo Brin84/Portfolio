@@ -22,4 +22,5 @@ urlpatterns = [  # Определяем список маршрутов URL дл
     path('add_article/', views.ArticleCreateView.as_view(), name='add_article'),
     # Страница для добавления новой статьи, вызывается ArticleCreateView.
     path('send_email/', send_test_email, name='send_email'),
+    path('session_test/', views.SessionTestView.as_view(), name='session_test')
 ]
