@@ -1,6 +1,4 @@
 import traceback
-
-from Tools.scripts.findlinksto import visit
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
@@ -135,69 +133,80 @@ class ContactView(View):  # Определяем класс представле
         form = ContactForm()
         return render(request, 'portfolio_app/contact.html', {
             'form': form,
-            'success': False
+            'success': False,
+            'spam_error': None
         })  # Возвращаем страницу с формой и контекстом
 
     def post(self, request):  # Метод, обрабатывающий POST-запросы
         form = ContactForm(request.POST)
-        name = request.POST.get('name')  # Извлекаем значение 'name' из данных POST-запроса
-        email = request.POST.get('email')  # Извлекаем значение 'email' из данных POST-запроса
-        message = request.POST.get('message')  # Извлекаем значение 'message' из данных POST-запроса
 
-        # Создаем новый объект ContactMessage и сохраняем его в базе данных
-        ContactMessage.objects.create(name=name, email=email, message=message)
-
-        # словарь контекста с флагом успешной операции
-        context = {'success': True}
-
-        try:
-            # Отправка электронной почты с помощью Django send_mail
-            send_mail(
-                # Тема письма - формируется с именем отправителя
-                subject=f"Сообщение от {name}",
-
-                # Текст сообщения, переданный в форме
-                message=message,
-
-                # Email отправителя из настроек проекта
-                from_email=settings.EMAIL_HOST_USER,
-
-                # Список получателей (берется из настроек)
-                recipient_list=[settings.CONTACT_EMAIL],
-
-                # Параметр для полной обработки ошибок
-                fail_silently=False,
-            )
-
-            # Рендер шаблона в случае успешной отправки
+        if not SpamProtection.check_rate_limit(request):
             return render(request, 'portfolio_app/contact.html', {
-                # Форма не передается (очищается)
                 'form': None,
-
-                # Флаг успешной отправки
-                'success': True,
+                'success': False,
+                'spam_error': 'Вы превысили лимит отправки сообщений. Для связи со мной:'
+                              '<a href="https://t.me/AscomfortAlexander">Telegram</a>'
             })
+        if form.is_valid():
 
-        except Exception as e:
-            # Обработка исключений при отправке письма
+            name = request.POST.get('name')  # Извлекаем значение 'name' из данных POST-запроса
+            email = request.POST.get('email')  # Извлекаем значение 'email' из данных POST-запроса
+            message = request.POST.get('message')  # Извлекаем значение 'message' из данных POST-запроса
 
-            # Получение полного трейса ошибки
-            error_trace = traceback.format_exc()
+            # Создаем новый объект ContactMessage и сохраняем его в базе данных
+            ContactMessage.objects.create(name=name, email=email, message=message)
 
-            # Вывод трейса ошибки в консоль (для отладки)
-            print(error_trace)
+            # словарь контекста с флагом успешной операции
+            context = {'success': True}
 
-            # Закомментированный код для создания текстового сообщения об ошибке
-            # error_message = f"Ошибка при отправке сообщения: {str(e)}"
+            try:
+                # Отправка электронной почты с помощью Django send_mail
+                send_mail(
+                    # Тема письма - формируется с именем отправителя
+                    subject=f"Сообщение от {name}",
 
-        # Рендер шаблона в случае ошибки отправки
-        return render(request, 'portfolio_app/contact.html', {
-            # Возврат исходной формы
-            'form': form,
+                    # Текст сообщения, переданный в форме
+                    message=message,
 
-            # Флаг неудачной отправки
-            'success': False
-        })
+                    # Email отправителя из настроек проекта
+                    from_email=settings.EMAIL_HOST_USER,
+
+                    # Список получателей (берется из настроек)
+                    recipient_list=[settings.CONTACT_EMAIL],
+
+                    # Параметр для полной обработки ошибок
+                    fail_silently=False,
+                )
+
+                # Рендер шаблона в случае успешной отправки
+                return render(request, 'portfolio_app/contact.html', {
+                    # Форма не передается (очищается)
+                    'form': None,
+
+                    # Флаг успешной отправки
+                    'success': True,
+                })
+
+            except Exception as e:
+                # Обработка исключений при отправке письма
+
+                # Получение полного трейса ошибки
+                error_trace = traceback.format_exc()
+
+                # Вывод трейса ошибки в консоль (для отладки)
+                print(error_trace)
+
+                # Закомментированный код для создания текстового сообщения об ошибке
+                # error_message = f"Ошибка при отправке сообщения: {str(e)}"
+
+            # Рендер шаблона в случае ошибки отправки
+            return render(request, 'portfolio_app/contact.html', {
+                # Возврат исходной формы
+                'form': form,
+
+                # Флаг неудачной отправки
+                'success': False
+            })
 
 
 class Custom404View(View):  # Определяем класс представления, наследуя от базового класса View
@@ -301,9 +310,44 @@ def send_test_email(request):
         return HttpResponse(f'Ошибка: {e}', status=500)
 
 
+class SessionTestView(View):  # Определяем класс SessionTestView, наследующий от базового класса View
+    # для обработки HTTP-запросов.
+    def get(self, request):  # Определяем метод get, обрабатывающий GET-запросы для данного представления.
+        visits = request.session.get('visits', 0)  # Получаем значение ключа 'visits' из сессии пользователя;
+        # если ключ не найден, то по умолчанию установим в 0.
+        request.session['visits'] = visits + 1  # Увеличиваем значение 'visits' на 1 и записываем его обратно в сессию.
+        return HttpResponse(f'Вы посетили эту страницу {visits + 1} раз(а)')  # Возвращаем HTTP-ответ с информацией
+        # о количестве посещений страницы.
 
-class SessionTestView(View):
-    def get(self, request):
-        visits = request.session.get('visits', 0)
-        request.session['visits'] = visits+1
-        return HttpResponse(f'Вы посетили эту страницу {visits+1} раз(а)')
+
+class SpamProtection:
+    @staticmethod
+    def check_rate_limit(request):
+        '''
+        Метод защиты от спама с ограничением количества запросов
+
+        :param request: HTTP-запрос от пользователя
+        :return: Boolean - разрешен или заблокирован запрос
+        '''
+        # Получаем IP-адрес пользователя из метаданных запроса
+        user_ip = request.META.get('REMOTE_ADDR')
+
+        # Создаем уникальный ключ кэша для каждого IP-адреса
+        cache_key = f'rate_limit: {user_ip}'
+
+        # Получаем количество запросов из кэша, по умолчанию 0
+        requests_count = cache.get(cache_key, 0)
+
+        # Если количество запросов >= 2, блокируем дальнейшие запросы
+        if requests_count >= 2:
+            return False
+
+        # Если это первый запрос, устанавливаем счетчик в кэше на 30 секунд
+        if requests_count == 0:
+            cache.set(cache_key, 1, timeout=180)
+        else:
+            # Увеличиваем счетчик запросов на 1
+            cache.incr(cache_key, 1)
+
+        # Разрешаем выполнение запроса
+        return True

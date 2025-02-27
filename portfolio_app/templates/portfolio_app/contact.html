@@ -10,6 +10,10 @@
     <div class="success-message">
         <p>Ваше сообщение отправлено!</p>
     </div>
+    {% elif spam_error %}
+    <div class="error-message">
+        <p> {{ spam_error|safe }} </p>
+    </div>
     {% else %}
     <form method="post" class="contact-form">
         {% csrf_token %}
