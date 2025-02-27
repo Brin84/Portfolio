@@ -367,4 +367,5 @@ urlpatterns = [
 <p>Извините, запрашиваемая страница не существует.</p>
 <a href="{% url 'portfolio_app:projects' %}">Назад к списку проектов</a>
 {% endblock %}
-попоп
+
+
