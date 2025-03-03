@@ -2,6 +2,7 @@ from django.urls import path  # Импортируем функцию path из 
 from . import \
     views  # Импортируем модуль views из текущей директории, чтобы использовать представления, определенные в нем.
 from .views import send_test_email
+from . import api_views
 
 app_name = "portfolio_app"  # Задаем пространство имен для приложения, чтобы различать URL-ы между разными приложениями.
 
@@ -22,5 +23,8 @@ urlpatterns = [  # Определяем список маршрутов URL дл
     path('add_article/', views.ArticleCreateView.as_view(), name='add_article'),
     # Страница для добавления новой статьи, вызывается ArticleCreateView.
     path('send_email/', send_test_email, name='send_email'),
-    path('session_test/', views.SessionTestView.as_view(), name='session_test')
+    path('session_test/', views.SessionTestView.as_view(), name='session_test'),
+    path('api/projects/', api_views.ProjectListAPI.as_view(), name='api-projects'),
+    path('api/add_project/', api_views.ProjectCreateAPI.as_view(), name='api-add_project'),
+
 ]
