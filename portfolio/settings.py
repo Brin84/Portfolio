@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv()
 from django.conf.global_settings import LOGIN_URL, LOGOUT_REDIRECT_URL, LOGIN_REDIRECT_URL, EMAIL_BACKEND, EMAIL_HOST, \
     EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_USE_TLS
 
@@ -170,7 +172,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'brin14071984@gmail.com'
-EMAIL_HOST_PASSWORD = 'nhljcxphvdsnnxqc'
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 CONTACT_EMAIL = 'ascomfort84@gmail.com'
 
 CACHES = {
