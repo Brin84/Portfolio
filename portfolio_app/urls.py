@@ -1,4 +1,6 @@
 from django.urls import path  # Импортируем функцию path из django.urls для определения маршрутов URL.
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from . import \
     views  # Импортируем модуль views из текущей директории, чтобы использовать представления, определенные в нем.
 from .views import send_test_email
@@ -26,5 +28,7 @@ urlpatterns = [  # Определяем список маршрутов URL дл
     path('session_test/', views.SessionTestView.as_view(), name='session_test'),
     path('api/projects/', api_views.ProjectListAPI.as_view(), name='api-projects'),
     path('api/add_project/', api_views.ProjectCreateAPI.as_view(), name='api-add_project'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
